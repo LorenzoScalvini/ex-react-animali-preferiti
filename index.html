@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="it">
   <head>
@@ -37,25 +36,33 @@
     <script type="text/babel">
       // Componente React per la lista di animali
       function ListaAnimali() {
-        const animals = [
+        const animalsChoices = [
           'Cane',
           'Gatto',
-          'Elefante',
-          'Leone',
-          'Tigre',
-          'Giraffa',
-          'Orso',
+          'Pappagallo',
+          'Cavallo',
+          'Panda',
         ];
+        const [animals, setAnimals] = React.useState([]);
+
+        const aggiungiAnimale = () => {
+          const animaleCasuale =
+            animalsChoices[Math.floor(Math.random() * animalsChoices.length)];
+          setAnimals([...animals, animaleCasuale]);
+        };
 
         return (
-          <details>
-            <summary>Animali</summary>
-            <ul>
-              {animals.map((animal, index) => (
-                <li key={index}>{animal}</li>
-              ))}
-            </ul>
-          </details>
+          <div>
+            <button onClick={aggiungiAnimale}>Aggiungi Animale</button>
+            <details>
+              <summary>Animali</summary>
+              <ul>
+                {animals.map((animal, index) => (
+                  <li key={index}>{animal}</li>
+                ))}
+              </ul>
+            </details>
+          </div>
         );
       }
       const container = document.querySelector('.lista-animali');
