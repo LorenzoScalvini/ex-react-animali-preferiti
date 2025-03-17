@@ -34,37 +34,113 @@
 
     <!-- Script React -->
     <script type="text/babel">
-      // Componente React per la lista di animali
-      function ListaAnimali() {
-        const animalsChoices = [
-          'Cane',
-          'Gatto',
-          'Pappagallo',
-          'Cavallo',
-          'Panda',
-        ];
-        const [animals, setAnimals] = React.useState([]);
+      // Componente Modal migliorato
+      function Modal({
+        title,
+        content,
+        show = false,
+        onClose = () => {},
+        onConfirm = () => {},
+      }) {
+        return (
+          show &&
+          ReactDOM.createPortal(
+            <div className="modal-container">
+              <div className="modal">
+                <h2>{title}</h2>
+                <div>{content}</div>
+                <div className="modal-footer">
+                  <button className="cancel" onClick={onClose}>
+                    Annulla
+                  </button>
+                  <button onClick={onConfirm}>Conferma</button>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )
+        );
+      }
 
-        const aggiungiAnimale = () => {
-          const animaleCasuale =
-            animalsChoices[Math.floor(Math.random() * animalsChoices.length)];
-          setAnimals([...animals, animaleCasuale]);
+      // Componente per il form di inserimento animale
+      function AnimalForm({ onAnimalChange }) {
+        const [animalInput, setAnimalInput] = React.useState('');
+
+        const handleChange = (e) => {
+          setAnimalInput(e.target.value);
+          onAnimalChange(e.target.value);
         };
 
         return (
           <div>
-            <button onClick={aggiungiAnimale}>Aggiungi Animale</button>
+            <label htmlFor="animal-input">Nome dell'animale:</label>
+            <input
+              id="animal-input"
+              type="text"
+              value={animalInput}
+              onChange={handleChange}
+              placeholder="Inserisci un animale"
+            />
+          </div>
+        );
+      }
+
+      // Componente React per la lista di animali
+      function ListaAnimali() {
+        const [animals, setAnimals] = React.useState([]);
+        const [showModal, setShowModal] = React.useState(false);
+        const [newAnimal, setNewAnimal] = React.useState('');
+
+        const apriModal = () => {
+          setShowModal(true);
+        };
+
+        const chiudiModal = () => {
+          setShowModal(false);
+          setNewAnimal('');
+        };
+
+        const aggiungiAnimale = () => {
+          if (newAnimal.trim() !== '') {
+            setAnimals([...animals, newAnimal]);
+            chiudiModal();
+          }
+        };
+
+        const handleAnimalChange = (value) => {
+          setNewAnimal(value);
+        };
+
+        return (
+          <div>
+            <button onClick={apriModal}>Aggiungi Animale</button>
+
+            <Modal
+              title="Aggiungi un nuovo animale"
+              content={<AnimalForm onAnimalChange={handleAnimalChange} />}
+              show={showModal}
+              onClose={chiudiModal}
+              onConfirm={aggiungiAnimale}
+            />
+
             <details>
-              <summary>Animali</summary>
-              <ul>
-                {animals.map((animal, index) => (
-                  <li key={index}>{animal}</li>
-                ))}
-              </ul>
+              <summary>Animali ({animals.length})</summary>
+              {animals.length > 0 ? (
+                <ul>
+                  {animals.map((animal, index) => (
+                    <li key={index}>{animal}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>
+                  Nessun animale nella lista. Aggiungi il tuo primo animale!
+                </p>
+              )}
             </details>
           </div>
         );
       }
+
       const container = document.querySelector('.lista-animali');
       const root = ReactDOM.createRoot(container);
       root.render(<ListaAnimali />);
